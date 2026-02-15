@@ -6,23 +6,67 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string", "description": "Optional path or URL to this schema for editor validation." },
-    "db": { "type": "string", "description": "Database URI. Backend inferred from scheme: path or file → LadybugDB file; ladybug:memory → in-memory; falkor://... → FalkorDB." },
-    "bulkUnwindBatchSize": { "type": "integer", "minimum": 1, "description": "FalkorDB UNWIND batch size (rows per query); default 500." },
-    "ignore": { "type": "array", "description": "Glob patterns for files/directories to exclude from analysis.", "items": { "type": "string" } },
-    "roots": { "type": "array", "description": "METHOD ids used as overlay roots when running overlay; overrides DB-derived roots.", "items": { "type": "string" } },
-    "packs": { "type": "array", "description": "Pack ids to run (META-03). When empty, packs are selected from graph (STUB). Override to always run specific packs.", "items": { "type": "string" } },
+    "$schema": {
+      "type": "string",
+      "description": "Optional path or URL to this schema for editor validation."
+    },
+    "db": {
+      "type": "string",
+      "description": "Database URI. Backend inferred from scheme: path or file → LadybugDB file; ladybug:memory → in-memory; falkor://... → FalkorDB."
+    },
+    "bulkUnwindBatchSize": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "FalkorDB UNWIND batch size (rows per query); default 500."
+    },
+    "ignore": {
+      "type": "array",
+      "description": "Glob patterns for files/directories to exclude from analysis.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "roots": {
+      "type": "array",
+      "description": "METHOD ids used as overlay roots when running overlay; overrides DB-derived roots.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "packs": {
+      "type": "array",
+      "description": "Pack ids to run (META-03). When empty, packs are selected from graph (STUB). Override to always run specific packs.",
+      "items": {
+        "type": "string"
+      }
+    },
     "dynamicImports": {
       "type": "array",
       "description": "Dynamic import hints: for each call site (file + pattern) list concrete module targets. DDH pack emits DYNAMIC_IMPORT_HINT; more entries = more resolved dynamic imports in the graph.",
       "items": {
         "type": "object",
-        "required": ["file", "pattern", "targets"],
+        "required": [
+          "file",
+          "pattern",
+          "targets"
+        ],
         "additionalProperties": false,
         "properties": {
-          "file": { "type": "string", "description": "Source file path relative to project root (matches CALLSITE.file_id)." },
-          "pattern": { "type": "string", "description": "Substring to search for in CALLSITE.source_text to identify the dynamic import call." },
-          "targets": { "type": "array", "description": "List of concrete module files that may be dynamically imported from this site.", "items": { "type": "string" } }
+          "file": {
+            "type": "string",
+            "description": "Source file path relative to project root (matches CALLSITE.file_id)."
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Substring to search for in CALLSITE.source_text to identify the dynamic import call."
+          },
+          "targets": {
+            "type": "array",
+            "description": "List of concrete module files that may be dynamically imported from this site.",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       }
     },
@@ -31,10 +75,96 @@
       "description": "Taint overlay (RFC-012). When section is missing, enabled=true with default sources/sanitizers.",
       "additionalProperties": false,
       "properties": {
-        "enabled": { "type": "boolean", "description": "Enable taint propagation in overlay. Default true." },
-        "sources": { "type": "array", "description": "Additional taint sources. Default: poisons_wildcard_tail. Selectors: { \"kind\": \"call_id\", \"ids\": [...] } or { \"kind\": \"callee_name_regex\", \"pattern\": \"...\" }.", "items": { "type": "object", "required": ["kind"], "properties": { "kind": { "type": "string", "enum": ["poisons_wildcard_tail", "call_id", "callee_name_regex"] }, "ids": { "type": "array", "items": { "type": "string" } }, "pattern": { "type": "string" } } } },
-        "sanitizers": { "type": "array", "description": "Additional sanitizer barriers. Default: sanitizes_edge_to. Same selector forms as sources.", "items": { "type": "object", "required": ["kind"], "properties": { "kind": { "type": "string", "enum": ["sanitizes_edge_to", "call_id", "callee_name_regex"] }, "ids": { "type": "array", "items": { "type": "string" } }, "pattern": { "type": "string" } } } },
-        "sinks": { "type": "array", "description": "Sinks to report when reachable from sources. Resolved to CALL ids and passed to overlay as sinkCallIds.", "items": { "type": "object", "required": ["kind"], "properties": { "kind": { "type": "string", "enum": ["call_id", "callee_name_regex"] }, "ids": { "type": "array", "items": { "type": "string" } }, "pattern": { "type": "string" } } } }
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable taint propagation in overlay. Default true."
+        },
+        "sources": {
+          "type": "array",
+          "description": "Additional taint sources. Default: poisons_wildcard_tail. Selectors: { \"kind\": \"call_id\", \"ids\": [...] } or { \"kind\": \"callee_name_regex\", \"pattern\": \"...\" }.",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "poisons_wildcard_tail",
+                  "call_id",
+                  "callee_name_regex"
+                ]
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "pattern": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "sanitizers": {
+          "type": "array",
+          "description": "Additional sanitizer barriers. Default: sanitizes_edge_to. Same selector forms as sources.",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "sanitizes_edge_to",
+                  "call_id",
+                  "callee_name_regex"
+                ]
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "pattern": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "sinks": {
+          "type": "array",
+          "description": "Sinks to report when reachable from sources. Resolved to CALL ids and passed to overlay as sinkCallIds.",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "call_id",
+                  "callee_name_regex"
+                ]
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "pattern": {
+                "type": "string"
+              }
+            }
+          }
+        }
       }
     },
     "frameworkDetection": {
@@ -42,14 +172,65 @@
       "description": "Build-time framework detection (ADR0021). Profiles (e.g. react) write sidecar nodes (REACT_*). When profiles is set, standard is ignored.",
       "additionalProperties": false,
       "properties": {
-        "profiles": { "type": "array", "description": "Profile ids to run (e.g. [\"react\"]). Resolved from pack registry (packs with getBuildTimeDetector); e.g. \"react\" from React pack.", "items": { "type": "string" } },
-        "standard": { "type": "object", "additionalProperties": false, "properties": { "react": { "type": "boolean", "description": "Run react preset when true. Default when profiles not set." }, "reatom": { "type": "boolean", "description": "Run reatom preset when true." } } },
-        "custom": { "type": "array", "description": "Custom detector names when supported.", "items": { "type": "string" } }
+        "profiles": {
+          "type": "array",
+          "description": "Profile ids to run (e.g. [\"react\"]). Resolved from pack registry (packs with getBuildTimeDetector); e.g. \"react\" from React pack.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "standard": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "react": {
+              "type": "boolean",
+              "description": "Run react preset when true. Default when profiles not set."
+            },
+            "reatom": {
+              "type": "boolean",
+              "description": "Run reatom preset when true."
+            }
+          }
+        },
+        "custom": {
+          "type": "array",
+          "description": "Custom detector names when supported.",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
-    "patternDetection": { "type": "boolean", "description": "When true (default), run pattern detection after framework detection and write PATTERN_MATCH. When false, pattern phase is skipped." },
-    "exportedOnly": { "type": "boolean", "description": "When false, include non-exported scopes (arrow/function expressions, callbacks) so CALL from them are emitted (e.g. cross-package edges from command handlers). When true (default), only exported declarations are analyzed. Overridden by CLI --exported-only / --no-exported-only." },
-    "reports": { "type": "object", "description": "Report paths. When absent, CLI uses bundled default registry and code-reports/query-results.json.", "additionalProperties": false, "properties": { "queriesPath": { "type": "string", "description": "Path to query registry YAML/JSON (relative to project root)." }, "outputDir": { "type": "string", "description": "Output directory for report files (default: code-reports)." }, "outputFile": { "type": "string", "description": "Output filename for raw JSON report (default: query-results.json)." } } }
+    "patternDetection": {
+      "type": "boolean",
+      "description": "When true (default), run pattern detection after framework detection and write PATTERN_MATCH. When false, pattern phase is skipped."
+    },
+    "exportedOnly": {
+      "type": "boolean",
+      "description": "When false, include non-exported scopes (arrow/function expressions, callbacks) so CALL from them are emitted (e.g. cross-package edges from command handlers). When true (default), only exported declarations are analyzed. Overridden by CLI --exported-only / --no-exported-only."
+    },
+    "reports": {
+      "type": "object",
+      "description": "Report paths. When absent, CLI uses bundled default registry and code-reports/query-results.json.",
+      "additionalProperties": false,
+      "properties": {
+        "queriesPath": {
+          "type": "string",
+          "description": "Path to query registry YAML/JSON (relative to project root)."
+        },
+        "outputDir": {
+          "type": "string",
+          "description": "Output directory for report files (default: code-reports)."
+        },
+        "outputFile": {
+          "type": "string",
+          "description": "Output filename for raw JSON report (default: query-results.json)."
+        }
+      }
+    }
   },
-  "required": ["db"]
+  "required": [
+    "db"
+  ]
 }
