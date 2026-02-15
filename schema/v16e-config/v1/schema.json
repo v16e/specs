@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://v16e.dev/schemas/v16e-config.schema.json",
+  "$id": "https://v16e.dev/schemas/v16e-config/v1/schema.json",
+  "version": "1",
   "title": "v16e Project Config",
   "type": "object",
   "additionalProperties": false,
