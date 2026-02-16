@@ -14,6 +14,15 @@
       "type": "string",
       "description": "Database URI. Backend inferred from scheme: path or file → LadybugDB file; ladybug:memory → in-memory; falkor://... → FalkorDB."
     },
+    "dbBackend": {
+      "type": "string",
+      "description": "Optional database backend override. When omitted, backend is inferred from the db URI. Known values: \"ladybug\" (default file-based), \"ladybug-remote\" (resilient worker for LadybugDB), \"falcordb\" (FalkorDB).",
+      "enum": [
+        "ladybug",
+        "ladybug-remote",
+        "falcordb"
+      ]
+    },
     "bulkUnwindBatchSize": {
       "type": "integer",
       "minimum": 1,
@@ -209,6 +218,10 @@
     "exportedOnly": {
       "type": "boolean",
       "description": "When false, include non-exported scopes (arrow/function expressions, callbacks) so CALL from them are emitted (e.g. cross-package edges from command handlers). When true (default), only exported declarations are analyzed. Overridden by CLI --exported-only / --no-exported-only."
+    },
+    "preloadSourceFiles": {
+      "type": "boolean",
+      "description": "When true, preload all tsconfig source files into memory once and use read-only host (task 6.1.4). Use if readFileUtf8 is still high in profile. Default false."
     },
     "reports": {
       "type": "object",

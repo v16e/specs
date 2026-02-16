@@ -1,6 +1,15 @@
 # v16e specs
 
-Schemas, contracts, and documentation for the v16e ecosystem.
+Schemas and documentation for the v16e ecosystem.
 
-- **schema/** — JSON Schema. Config: `schema/v16e-config/v1/schema.json` (versioned by major)
-- **docs/** — authoring guides, user guides
+## Schema
+
+**v16e.config.json** — JSON Schema: `schema/v16e-config/v1/schema.json`
+
+- Versioning: major version in path (`v1/`, `v2/`, etc.)
+- TypeScript types: see main repo `packages/v16e-cli` — `V16eProjectConfig`
+
+## Structure
+
+- **schema/** — JSON Schema (e.g. config)
+- **docs/** — guides and reference
