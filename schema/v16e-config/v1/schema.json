@@ -1,210 +1,86 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/v16e/specs/main/schema/v16e-config/v1/schema.json",
-  "version": "1",
-  "title": "v16e Project Config",
   "type": "object",
-  "additionalProperties": false,
   "properties": {
-    "$schema": {
-      "type": "string",
-      "description": "Optional path or URL to this schema for editor validation."
-    },
     "db": {
-      "type": "string",
-      "description": "Database URI. Backend inferred from scheme: path or file → LadybugDB file; ladybug:memory → in-memory; falkor://... → FalkorDB."
+      "type": "string"
     },
     "dbBackend": {
-      "type": "string",
-      "description": "Optional database backend override. When omitted, backend is inferred from the db URI. Known values: \"ladybug\" (default file-based), \"ladybug-remote\" (resilient worker for LadybugDB), \"falcordb\" (FalkorDB).",
+      "description": "Optional database backend override. When omitted, backend is inferred from the db URI.",
       "enum": [
+        "falcordb",
         "ladybug",
-        "ladybug-remote",
-        "falcordb"
-      ]
-    },
-    "bulkUnwindBatchSize": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "FalkorDB UNWIND batch size (rows per query); default 500."
+        "ladybug-remote"
+      ],
+      "type": "string"
     },
     "ignore": {
       "type": "array",
-      "description": "Glob patterns for files/directories to exclude from analysis.",
       "items": {
         "type": "string"
       }
     },
     "roots": {
       "type": "array",
-      "description": "METHOD ids used as overlay roots when running overlay; overrides DB-derived roots.",
       "items": {
         "type": "string"
       }
     },
     "packs": {
       "type": "array",
-      "description": "Pack ids to run (META-03). When empty, packs are selected from graph (STUB). Override to always run specific packs.",
       "items": {
         "type": "string"
       }
     },
     "dynamicImports": {
       "type": "array",
-      "description": "Dynamic import hints: for each call site (file + pattern) list concrete module targets. DDH pack emits DYNAMIC_IMPORT_HINT; more entries = more resolved dynamic imports in the graph.",
       "items": {
         "type": "object",
-        "required": [
-          "file",
-          "pattern",
-          "targets"
-        ],
-        "additionalProperties": false,
         "properties": {
           "file": {
-            "type": "string",
-            "description": "Source file path relative to project root (matches CALLSITE.file_id)."
+            "type": "string"
           },
           "pattern": {
-            "type": "string",
-            "description": "Substring to search for in CALLSITE.source_text to identify the dynamic import call."
+            "type": "string"
           },
           "targets": {
             "type": "array",
-            "description": "List of concrete module files that may be dynamically imported from this site.",
             "items": {
               "type": "string"
             }
           }
-        }
+        },
+        "required": [
+          "file",
+          "pattern",
+          "targets"
+        ]
       }
     },
     "taint": {
-      "type": "object",
-      "description": "Taint overlay (RFC-012). When section is missing, enabled=true with default sources/sanitizers.",
-      "additionalProperties": false,
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Enable taint propagation in overlay. Default true."
-        },
-        "sources": {
-          "type": "array",
-          "description": "Additional taint sources. Default: poisons_wildcard_tail. Selectors: { \"kind\": \"call_id\", \"ids\": [...] } or { \"kind\": \"callee_name_regex\", \"pattern\": \"...\" }.",
-          "items": {
-            "type": "object",
-            "required": [
-              "kind"
-            ],
-            "properties": {
-              "kind": {
-                "type": "string",
-                "enum": [
-                  "poisons_wildcard_tail",
-                  "call_id",
-                  "callee_name_regex"
-                ]
-              },
-              "ids": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "pattern": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "sanitizers": {
-          "type": "array",
-          "description": "Additional sanitizer barriers. Default: sanitizes_edge_to. Same selector forms as sources.",
-          "items": {
-            "type": "object",
-            "required": [
-              "kind"
-            ],
-            "properties": {
-              "kind": {
-                "type": "string",
-                "enum": [
-                  "sanitizes_edge_to",
-                  "call_id",
-                  "callee_name_regex"
-                ]
-              },
-              "ids": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "pattern": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "sinks": {
-          "type": "array",
-          "description": "Sinks to report when reachable from sources. Resolved to CALL ids and passed to overlay as sinkCallIds.",
-          "items": {
-            "type": "object",
-            "required": [
-              "kind"
-            ],
-            "properties": {
-              "kind": {
-                "type": "string",
-                "enum": [
-                  "call_id",
-                  "callee_name_regex"
-                ]
-              },
-              "ids": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "pattern": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      }
+      "$ref": "#/definitions/TaintConfigSection"
     },
     "frameworkDetection": {
       "type": "object",
-      "description": "Build-time framework detection (ADR0021). Profiles (e.g. react) write sidecar nodes (REACT_*). When profiles is set, standard is ignored.",
-      "additionalProperties": false,
       "properties": {
         "profiles": {
           "type": "array",
-          "description": "Profile ids to run (e.g. [\"react\"]). Resolved from pack registry (packs with getBuildTimeDetector); e.g. \"react\" from React pack.",
           "items": {
             "type": "string"
           }
         },
         "standard": {
           "type": "object",
-          "additionalProperties": false,
           "properties": {
             "react": {
-              "type": "boolean",
-              "description": "Run react preset when true. Default when profiles not set."
+              "type": "boolean"
             },
             "reatom": {
-              "type": "boolean",
-              "description": "Run reatom preset when true."
+              "type": "boolean"
             }
           }
         },
         "custom": {
           "type": "array",
-          "description": "Custom detector names when supported.",
           "items": {
             "type": "string"
           }
@@ -212,38 +88,216 @@
       }
     },
     "patternDetection": {
-      "type": "boolean",
-      "description": "When true (default), run pattern detection after framework detection and write PATTERN_MATCH. When false, pattern phase is skipped."
+      "type": "boolean"
     },
     "exportedOnly": {
-      "type": "boolean",
-      "description": "When false, include non-exported scopes (arrow/function expressions, callbacks) so CALL from them are emitted (e.g. cross-package edges from command handlers). When true (default), only exported declarations are analyzed. Overridden by CLI --exported-only / --no-exported-only."
+      "type": "boolean"
+    },
+    "bulkUnwindBatchSize": {
+      "description": "UNWIND batch size for FalkorDB bulk write (rows per query). Default 1000. Set to 1500–2000 on large graphs for fewer round-trips.",
+      "type": "number"
     },
     "preloadSourceFiles": {
-      "type": "boolean",
-      "description": "When true, preload all tsconfig source files into memory once and use read-only host (task 6.1.4). Use if readFileUtf8 is still high in profile. Default false."
+      "description": "When true, preload all tsconfig source files into memory once and use read-only host (task 6.1.4). Use if readFileUtf8 is still high in profile.",
+      "type": "boolean"
     },
     "reports": {
+      "description": "Report paths. When absent, CLI uses package default registry and code-reports/query-results.json.",
       "type": "object",
-      "description": "Report paths. When absent, CLI uses bundled default registry and code-reports/query-results.json.",
-      "additionalProperties": false,
       "properties": {
         "queriesPath": {
-          "type": "string",
-          "description": "Path to query registry YAML/JSON (relative to project root)."
+          "type": "string"
         },
         "outputDir": {
-          "type": "string",
-          "description": "Output directory for report files (default: code-reports)."
+          "type": "string"
         },
         "outputFile": {
-          "type": "string",
-          "description": "Output filename for raw JSON report (default: query-results.json)."
+          "type": "string"
+        }
+      }
+    },
+    "overlay": {
+      "description": "Overlay cache backend. 'db' stores overlay in graph DB tables (default for all backends), 'file' uses NDJSON cache, 'disabled' skips caching.",
+      "type": "object",
+      "properties": {
+        "cacheBackend": {
+          "enum": [
+            "db",
+            "disabled",
+            "file"
+          ],
+          "type": "string"
         }
       }
     }
   },
   "required": [
     "db"
-  ]
+  ],
+  "definitions": {
+    "TaintConfigSection": {
+      "description": "Taint config per RFC-012. Sources/sanitizers/sinks: kind + optional pattern or ids.",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "poisons_wildcard_tail"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "call_id"
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "ids",
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "callee_name_regex"
+                  },
+                  "pattern": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "pattern"
+                ]
+              }
+            ]
+          }
+        },
+        "sanitizers": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "sanitizes_edge_to"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "call_id"
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "ids",
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "callee_name_regex"
+                  },
+                  "pattern": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "pattern"
+                ]
+              }
+            ]
+          }
+        },
+        "sinks": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "call_id"
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "ids",
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "callee_name_regex"
+                  },
+                  "pattern": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "pattern"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/v16e/specs/main/schema/v16e-config/v1/schema.json",
+  "version": "1",
+  "title": "v16e Project Config",
+  "additionalProperties": false
 }
