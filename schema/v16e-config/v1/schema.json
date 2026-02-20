@@ -1,16 +1,11 @@
 {
   "type": "object",
   "properties": {
-    "db": {
+    "$schema": {
+      "description": "Schema URL for editor/IDE validation. Allowed so config can reference this schema.",
       "type": "string"
     },
-    "dbBackend": {
-      "description": "Optional database backend override. When omitted, backend is inferred from the db URI.",
-      "enum": [
-        "falcordb",
-        "ladybug",
-        "ladybug-remote"
-      ],
+    "db": {
       "type": "string"
     },
     "ignore": {
@@ -299,5 +294,11 @@
   "$id": "https://raw.githubusercontent.com/v16e/specs/main/schema/v16e-config/v1/schema.json",
   "version": "1",
   "title": "v16e Project Config",
-  "additionalProperties": false
+  "additionalProperties": false,
+  "patternProperties": {
+    "^~": {
+      "type": "string",
+      "description": "Informational; use ~key for hints (JSON has no comments)."
+    }
+  }
 }
